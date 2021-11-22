@@ -1,13 +1,37 @@
 const path = require("path");
-
 // Use the existing dishes data
 const dishes = require(path.resolve("src/data/dishes-data"));
-
 // Use this function to assign ID's when necessary
 const nextId = require("../utils/nextId");
 
+
 // TODO: Implement the /dishes handlers needed to make the tests pass
 //---Middleware functions---//
+
+function isValidDish(req, res, next){ 
+    const { data } = req.body;
+    const requiredFields = ["name", "description", "price", "image_url"];
+    for (const field of requiredFields) {
+        if (!data[field]) {
+            return next({
+                status: 400,
+                message: `Dish must include a ${field}`
+            })
+        }
+    }
+
+    if ( typeof data.price !== "number" || data.price < 1){
+        return next({
+            status: 400,
+            message: "Dish must have a price that is an integer greater than 0",
+        })
+    }
+
+    next();
+}
+
+
+
 
 
 
@@ -35,4 +59,4 @@ function create (req, res){
 
 
 
-module.exports = { list, create };
+module.exports = { list, create: [isValidDish, create] };
