@@ -19,7 +19,20 @@ res.json({ data: dishes})
 }
 
 
+function create (req, res){
+    const { data: { name, description, price, image_url }} = req.body;
+
+    const newDish = { 
+        id: nextId(),
+        name,
+        description,
+        price,
+        image_url
+    };
+    dishes.push(newDish);
+    res.status(201).json({ data: newDish });
+}
 
 
 
-module.exports = { list, };
+module.exports = { list, create };
