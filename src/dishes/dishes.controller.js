@@ -30,10 +30,35 @@ function isValidDish(req, res, next){
     next();
 }
 
+//if the id in the URL matches a dish id in the data then next, if not
+function dishExists (req, res, next){
+    const { dishId } = req.params;
+    const foundDish = dishes.find((dish) => dish.id === dishId);
+    if (foundDish){
+        res.locals.dish = foundDish;
+        return next();
+    }
+    next({
+        status: 404,
+        message:`Dish does not exist: ${dishId}`,
+    })
+}
 
 
-
-
+function dishRouteIdMatch (req, res, next){
+    const { dishId } = req.params;
+    const { data: { id } } = req.body
+    if (id){
+        if(id === dishId){
+            next();
+        }
+        next({
+            status:404,
+            message:`Dish id does not match route id. Dish: ${id}, Route: ${dishId}`
+        })
+    }
+    else next();
+}
 
 //---Router functions---//
 
@@ -57,6 +82,42 @@ function create (req, res){
     res.status(201).json({ data: newDish });
 }
 
+function read(req, res){
+    res.json({ data: res.locals.dish })
+}
 
 
-module.exports = { list, create: [isValidDish, create] };
+function update(req, res){
+    const dish = res.locals.dish;
+
+    const originalName = dish.name;
+    const originalDescr = dish.description;
+    const originalPrice = dish.price;
+    const originalImg = dish.image_url;
+
+    const { data: { name, description, price, image_url }} = req.body;
+   
+    if (originalName !== name ){
+        dish.name = name;
+    }
+
+    if (originalDescr !== description){
+        dish.description = description
+    }
+
+    if (originalPrice !== price ){
+        dish.price = price;
+    }
+
+    if (originalImg !== image_url ){
+        dish.image_url = image_url;
+    }
+
+    res.json({ data: res.locals.dish })
+
+
+}
+
+
+
+module.exports = { list, create: [isValidDish, create], read: [dishExists, read], update: [dishExists, dishRouteIdMatch, update]};
