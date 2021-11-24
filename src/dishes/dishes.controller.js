@@ -4,8 +4,9 @@ const dishes = require(path.resolve("src/data/dishes-data"));
 // Use this function to assign ID's when necessary
 const nextId = require("../utils/nextId");
 
-
 // TODO: Implement the /dishes handlers needed to make the tests pass
+
+
 //---Middleware functions---//
 
 function isValidDish(req, res, next){ 
@@ -53,7 +54,7 @@ function dishRouteIdMatch (req, res, next){
             next();
         }
         next({
-            status:404,
+            status:400,
             message:`Dish id does not match route id. Dish: ${id}, Route: ${dishId}`
         })
     }
@@ -120,4 +121,4 @@ function update(req, res){
 
 
 
-module.exports = { list, create: [isValidDish, create], read: [dishExists, read], update: [dishExists, dishRouteIdMatch, update]};
+module.exports = { list, create: [isValidDish, create], read: [dishExists, read], update: [dishExists, dishRouteIdMatch, isValidDish, update]};
